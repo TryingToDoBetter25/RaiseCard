@@ -9,6 +9,7 @@ from bridge.context import ContextType
 from bridge.reply import Reply, ReplyType
 from common.log import logger
 from plugins import *
+from PIL import Image  # 添加Pillow库导入
 
 @plugins.register(
     name="RaiseCard",
@@ -79,11 +80,37 @@ class RaiseCardPlugin(Plugin):
         try:
             response = requests.get(image_url)
             response.raise_for_status()
-            image_data = BytesIO(response.content)
-            logger.info("Image downloaded successfully")
-            return image_data
+            
+            # 将响应内容转换为PIL图像
+            image = Image.open(BytesIO(response.content))
+            
+            # 转换图像模式为RGBA（如果不是的话）
+            if image.mode != 'RGBA':
+                image = image.convert('RGBA')
+            
+            # 创建新的白色背景图像
+            background = Image.new('RGBA', image.size, (255, 255, 255, 255))
+            
+            # 将原图像合并到白色背景上
+            # composite_image = Image.alpha_composite(background, image)
+            
+            # 使用白色背景混合
+            composite_image = background.copy()
+            composite_image.paste(image, (0, 0), image)
+            
+            # 转换回BytesIO对象
+            output = BytesIO()
+            composite_image.save(output, format='PNG')
+            output.seek(0)
+            
+            logger.info("Image processed and background changed to white")
+            return output
+            
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to download image: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Failed to process image: {e}")
             return None
 
 # 示例调用
