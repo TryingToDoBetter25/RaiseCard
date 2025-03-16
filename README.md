@@ -11,6 +11,6 @@
 #scanp
 ```
 
-
+原插件地址：https://github.com/KimYx0207/RaiseCard
 
 
