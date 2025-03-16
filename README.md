@@ -10,7 +10,7 @@
 
 
 ```
-#installp https://github.com/KimYx0207/RaiseCard.git
+#installp https://github.com/TryingToDoBetter25/RaiseCard.git
 #scanp
 ```
 
